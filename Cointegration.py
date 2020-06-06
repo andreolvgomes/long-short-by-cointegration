@@ -231,3 +231,24 @@ def check_oneperiod(data, y_symbol, x_symbol, period):
     beta = model.params[1]
 
     return [adf.p_value, adf.is_stationary];
+
+def show(data, y_symbol, x_symbol):
+    y = data[y_symbol]
+    x = data[x_symbol]
+    
+    model= coin.model_ols(y, x)
+    std = statistics.stdev(model.resid)
+    entry_threshold = 2 # entrada em 2 desvio padrão
+
+    #plt.figure(figsize=(15,6))
+    plt.figure(figsize=(10,5))
+    plt.plot(model.resid)
+    plt.ylabel('Residual')
+    plt.title(y_symbol + ' / ' + x_symbol)
+
+    plt.axhline(0, color='black',label='mean',linestyle='--') # Add the mean of residual
+    plt.axhline(entry_threshold*std, color='green', linestyle='--',label='trade')
+    plt.axhline(-entry_threshold*std, color='green', linestyle='--')
+
+    plt.legend()
+    plt.show()
