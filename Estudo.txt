@@ -1,0 +1,134 @@
+[x] Correlação	
+	• Muito usada para detectar/mensurar quais são os pares. 
+		Mede a relação em sentido na qual duas variáveis se descolocam
+	• Métrica:
+		→ Próximo de +1, correlação forte na mesma direção
+		→ Próximo de -1, correlação forte em direção oposta
+		→ Próximo de 0, correlação ruim
+	• Usar variação percentual(%) em log (LN), não o preço
+	• Quer dizer que duas ações andam na mesma direção no mesmo sentido na maior parte das vezes
+	• Coeficiente Angular mede isso
+[x] Cointegração
+	• Combinação Linear
+	• Não se importa com setor, ramos etc... tudo é tratado como uma simples variável
+	• Testar estacionaridade. As séries temporias devem ser estacionárias
+	• Revisão do modelo, janelas de testes: 100, 120, 140, 160, 180, 200, 220, 240, 250
+	• É bom que esteja cointegradas em pelo menos 3 períodos
+	• Teste de estacionaridade:
+		→ Dickey Fuller
+		→ Kolmogorov & Smirnov
+		→ Jarque-Beta
+	• Melhor ainda ser Correlacionados + Cointegrados
+[x] Tipos de Long & Sort
+	• ON  e PN: Papeis da mesma empresa(PETR4xPETR3, ITUB4xITUB3 ....)
+		→ Mais conservadoras
+	• Controladora x Controlada: GOAU4x GGBR4, VALE3xBRAP4
+	• Intra-setoriais: Por setores
+	• Inter-setorial: Setores nada haver
+[ ] Alfa(alpha)
+[x] Índice Beta/Coeficiente Angular
+	• Sensibilidade de um variável(ativo) em relação ao outro
+	• Para o obter não se utiliza o %, usa-se o valor, a variável
+	• É da variável independente(X)
+	• Define-se o beta como o coeficiente angular da reta de regressão linear das variações de um ativo
+	• Indicador que compara a variação percentual entre os ativos
+	• Na operação basta multiplica a quantidade de ações do independente pelo Beta
+	• Quanto mais estável o valor em diversos períodos, mais é tranquila a operação
+[x] Half-Life of mean reversion
+	• Mede quanto tempo(média) levaria uma série temporal para voltar na média
+[x] Financeiro
+	• Cash Neutro
+		→ Não colocar dinheiro na operação; Volume financeiro baixo
+		→ Mais rentável
+	• Beta Neutro
+		→ Usa o Beta do preço dos ativos para achar o lote
+[x] Quem manda em tudo é a variável "Dependente"
+	• Tocando na zona SUPERIOR:
+		→ Dependente: 	Vende
+		→ Independente: Compra
+	• Tocando na zona INFERIOR:
+		→ Dependente: 	Compra
+		→ Independente: Vende
+[x] Stop Loss é vc que define. O Take Profit é feito através de cálculos (voltar na média)
+[x] Sistemas Online de análise quantico
+	• https://www.pairtradinglab.com/
+	• https://wtrust.com.br/
+[x] Desvio Padrão é a distância entre os pares quando houver distorção
+	• É uma média de dispersão capaz de identificar o erro em torno da média
+		"Quanto menor o erro, mais constantes é os dados, melhor para trabalhar"
+[ ] Correlação sempre positiva
+[x] Small Caps
+	• As small caps são ações da Bolsa de Valores com menor capitalização de mercado liquidez <= 5 milhões
+[ ] Beta Rotation
+	• Bom que esteja do mesmo lado do resíduo
+[ ] Volatilidade
+	• Dos resíduos
+	• Do Beta Rotation
+[ ] Gráficos do Resíduo e Beta Rotation estão indicando uma boa probabilidade ed sucesso na operação
+[ ] Hurst Exponent
+	• Ajuda determinar se uma série temporal significa/volta reverter ou não a média
+[ ] Kalman Filters
+	• O sinal é obtido do filtro Kalman e verificamos se | e | > nz \ sigma,
+	em que nz é o limite do escore z a ser otimizado. Isso garante que este par tenha um
+	ponto de entrada. Realizamos esse teste primeiro, pois é barato. Se o par tiver um ponto
+	de entrada, escolhemos um período de lookback e realizamos o teste do ADF
+[ ] Test of Fisher
+	• Fisher Min/Max
+[ ] Bai-Perron
+[ ] Volatilidade
+[ ] Take Profit e Stop Loss tem que ser dinâmico, isso depende da volatilidade
+	• Volatilidade baixa: Stop Loss longo / Take Profit curto(Scalper)
+	• Volatilidade alta: Stop Loss curto / Take Profit longo
+[ ] Um robô IA só para medir a volatilidade
+[ ] A matemática do scalpers
+[ ] Índice de Sharpe
+[ ] z-score
+[x] Custos
+	→ Margem(apróx. 30%)..
+		• Se não tiver marge, vai ter multa
+	→ Pode usar Garantidas (ex. CBD)
+	→ Corretagem (por ordem)
+		• Evitar operar lote fracionário.. cobra 2 corretagem
+	→ Imposto de renda
+		• 15% ou 20%
+	→ BTC (Custódia Remunerada)
+		• Venda a descoberta
+		• Ver se o papel está disponível no BTC
+		• Daytrade não tem BTC
+		• Multa se não tiver BTC
+		• b3 Empréstimos registrados
+	→ Carta-Fiança
+		• Descasamento das operações =conta negativa
+		• Atenção â custódia / saldo em conta
+		• Se conta negativa: A corretora empresta dinheiro 0,3% .a.dia
+[x] Conceitos importantes
+	→ Fator (ou ratio) ou diferença
+	→ Zero-Crossings
+		• Stop Loss 2,0% 2,5%
+-------------------------------------------------------------------
+TBC
+http://www.b3.com.br/pt_br/produtos-e-servicos/emprestimo-de-ativos/renda-variavel/s_empreg_ativos/
+http://www.b3.com.br/pt_br/market-data-e-indices/indices/indices-amplos/indice-ibovespa-ibovespa-composicao-da-carteira.htm
+https://www.tororadar.com.br/investimento/bovespa/btc-emprestimo-de-acoes
+-------------------------------------------------------------------
+
+https://medium.com/auquan/mean-reversion-simple-trading-strategies-part-1-a18a87c1196a
+https://drnickel.wordpress.com/2015/03/15/long-short-atraves-de-cointegracao-parte-1/
+https://www.quantgo.com.br/
+https://www.youtube.com/watch?v=PymWOVWw7kI
+https://quant.deltatrader.com.br/bonus-mql5/
+https://scalpertrader.com.br/
+https://www.youtube.com/watch?v=MqVSkoGpBJs
+https://medium.com/@fabiofigueiredo_44303/opera%C3%A7%C3%B5es-de-long-and-short-pelo-m%C3%A9todo-de-cointegra%C3%A7%C3%A3o-23300cd2f568
+https://youtu.be/ed8k6KNm0oI?list=PL3x5iQNNDtX7pdyCOHiEEKexnaiuthpCo&t=1178
+
+https://drnickel.wordpress.com/2015/03/15/long-short-atraves-de-cointegracao-parte-1/
+https://drnickel.wordpress.com/2015/03/15/long-short-atraves-de-cointegracao-parte-2/
+https://drnickel.wordpress.com/2015/04/03/long-short-atraves-de-cointegracao-parte-3/
+https://drnickel.wordpress.com/2016/11/05/long-short-atraves-de-cointegracao-parte-4/
+
+backtest
+https://www.quantopian.com/algorithms/5ec4681f35f7a50042c94af9
+https://www.quantinsti.com/epat#learning-experience-block
+
+https://blog.tradeop.com.br/tudo-o-que-voce-precisa-saber-sobre-estrategia-long-short/
