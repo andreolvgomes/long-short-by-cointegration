@@ -1,5 +1,4 @@
 
-"""salva as funções no arquivo .py para serem utilizadas em outros notebook"""
 import statsmodels.api as sm
 import statsmodels.tsa.stattools as ts 
 from statsmodels.tsa.stattools import coint
@@ -389,7 +388,7 @@ def show(data, y_symbol, x_symbol, period=250, padronizar=True, savefig=''):
     plt.axhline(-entry_threshold*std, color='green', linestyle='--', linewidth=2)
     
     plt.grid(True)
-    
+    plt.margins(0.1)
     if(savefig!=''):
         plt.savefig(savefig)
 
