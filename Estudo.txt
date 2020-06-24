@@ -56,8 +56,6 @@
 [x] Desvio Padrão é a distância entre os pares quando houver distorção
 	• É uma média de dispersão capaz de identificar o erro em torno da média
 		"Quanto menor o erro, mais constantes é os dados, melhor para trabalhar"
-[ ] Correlação sempre positiva
-[x] Small Caps
 	• As small caps são ações da Bolsa de Valores com menor capitalização de mercado liquidez <= 5 milhões
 [ ] Beta Rotation
 	• Bom que esteja do mesmo lado do resíduo
@@ -105,6 +103,11 @@
 	→ Fator (ou ratio) ou diferença
 	→ Zero-Crossings
 		• Stop Loss 2,0% 2,5%
+[ ] Verificar o ativo que tá sinalizando short, tá sinalizando short em quantos mais pares
+[ ] Calcular a volatilidade
+[ ] Calcular R$ take profi
+[ ] Calular margem
+[ ] Calular R$ stop loss
 -------------------------------------------------------------------
 TBC
 http://www.b3.com.br/pt_br/produtos-e-servicos/emprestimo-de-ativos/renda-variavel/s_empreg_ativos/
