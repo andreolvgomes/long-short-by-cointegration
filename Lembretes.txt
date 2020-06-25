@@ -1,0 +1,9 @@
+-------------------------------------------------
+BBDC3/SANB11 long/short
+'datasets/oper/22062020.csv'
+
+24/06/2020;fato interessante, os resíduos tá voltando pra média, mas BBDC3(long) tá caindo 
+e SANB11(short) tá caindo tb, só que mais do que BBDC3
+Obs: Achei que quando estivesse voltando pra média estaria ganhando nas duas pontas, long e short
+
+-------------------------------------------------
