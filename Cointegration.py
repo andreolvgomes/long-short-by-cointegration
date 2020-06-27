@@ -361,6 +361,13 @@ def clear_folder(pathdir):
         if os.path.exists(filename):
             os.remove(filename)
 
+def volatility(prices, periods=0):
+    if (periods > 0):
+        prices = prices[0:periods+1]# +1, pq haverá um lag(d-1)
+    log = np.log(prices/prices.shift(1))
+    vol = log.std() * np.sqrt(252)
+    return vol
+
 """
 Show graphic
 """
@@ -380,13 +387,14 @@ def show(data, y_symbol, x_symbol, period=250, padronizar=True, savefig=''):
     result.plot(figsize=(15,6))
     plt.ylabel('Residual')
     if(y_symbol != '' and x_symbol != ''):
-        plt.title(y_symbol + ' / ' + x_symbol) 
+        plt.title('{} / {}'.format(y_symbol, x_symbol))
 
     #purple
     plt.axhline(0, color='black',label='mean') # Add the mean of residual
     plt.axhline(entry_threshold*std, color='red', linestyle='--', linewidth=2)
     plt.axhline(-entry_threshold*std, color='green', linestyle='--', linewidth=2)
-    
+    plt.xlabel('')
+
     plt.grid(True)
     plt.margins(0.1)
     if(savefig!=''):
