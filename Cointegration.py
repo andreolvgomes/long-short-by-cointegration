@@ -35,7 +35,9 @@ class DickeyFuller(object):
             self.perc_stat = 95
         elif (abs(statistic) > abs(model[4]['10%'])):
             self.perc_stat = 90
-    
+        else:
+            self.perc_stat = 0
+
         return self.is_stationary
 
 """
@@ -94,10 +96,8 @@ def beta(y, x):
 """
 Check cointegrated pairs from dataframe
 """
-def find_cointegrated_pairs(data, num_pairs=0, period=250):
-    adf = DickeyFuller()
+def find_cointegrated_pairs(data, period=250, check_other_periods=True):
     rows = []
-    isBreak = False
     index=-1
     
     for y_symbol in data.columns:
@@ -105,27 +105,49 @@ def find_cointegrated_pairs(data, num_pairs=0, period=250):
         for x_symbol in data.columns[index+1:data.shape[1]]:#for x_symbol in data.columns:
             if (y_symbol == x_symbol):
                 continue
-
-            # filter by period
-            y, x = getvalues_by_period(data[y_symbol], data[x_symbol], period)
+                
+            y_values = data[y_symbol]
+            x_values = data[x_symbol]
             
-            model = model_ols(y, x)
-            adf.check(model.resid)
-            beta = model.params[1]
+            # filter by period
+            y, x = getvalues_by_period(y_values, x_values, period)
+            coint = cointegration(y, x, 0)
             
             # check is stationary
-            if (adf.is_stationary):
-                rows.append([len(x), y_symbol, x_symbol, adf.p_value, adf.perc_stat, beta])
-                    
-            # break for two
-            isBreak = (num_pairs > 0 and len(rows) >= num_pairs)
-            if (isBreak == True): break
-        
-        # break for one
-        if (isBreak == True): break
+            if (coint['is_stationary'] == True):
+                rows.append([len(x), y_symbol, x_symbol, coint['p_value'], coint['perc_stat'], coint['beta']])
+                
+            # 28/06/2020
+            # se não tá cointegrado no período principal, verifica se tá em outro
+            if (coint['is_stationary'] == False and check_other_periods == True):
+                for per in [250, 240, 220, 200, 180, 160, 140, 120, 100]:
+                    res_dic = cointegration(y_values, x_values, per)
 
+                    # só precisa saber que tá cointregado em algum período
+                    if (res_dic['is_stationary'] == True):
+                        rows.append([per, y_symbol, x_symbol, res_dic['p_value'], res_dic['perc_stat'], res_dic['beta']])
+                        break
+
+    # create DataFrame
     df_pairs = pd.DataFrame(rows, columns=['Period', 'Dependente', 'Independente', 'Dickey-Fuller', 'ADF', 'Beta'])
     return df_pairs
+
+"""
+Check cointegration in values Y vs X by period
+"""
+def cointegration(y, x, period = 250):
+    adf = DickeyFuller()
+    if (period == 0):
+        period = len(y)
+
+    y, x = getvalues_by_period(y, x, period)
+    model = model_ols(y, x)
+    adf.check(model.resid)
+    return {"is_stationary": adf.is_stationary,
+            "p_value": adf.p_value,
+            "perc_stat": adf.perc_stat,
+            "beta": model.params[1],
+            "period": period}
 
 """
 Apply various periods in DataFrame of the pairs
@@ -159,12 +181,12 @@ def analysis_by_periods(y, x):
         # filter by period
         y_values, x_values = getvalues_by_period(y, x, period)
 
-        coin = cointegration(y_values, x_values, 0)
+        res_dic = cointegration(y_values, x_values, 0)
         half_life = check_halflife(y_values, x_values)
         hurst = check_hurst(y_values, x_values)
         corr = corr_pearson(y_values, x_values)
-            
-        rows.append([period, coin[0], coin[1], coin[2], coin[3], half_life, hurst, corr])
+
+        rows.append([period, res_dic['is_stationary'], res_dic['p_value'], res_dic['perc_stat'], res_dic['beta'], half_life, hurst, corr])
         
     analysis = pd.DataFrame(rows, columns=['Period', 'Stationary', 'Dickey-Fuller', 'ADF', 'Beta', 'HalfLife', 'Hurst', 'Corr'])
     return analysis
@@ -178,19 +200,6 @@ def return_varlog(time_series):
     ret = np.log(time_series/lag)
     ret[0] = 0
     return ret
-
-"""
-Check cointegration in values Y vs X by period
-"""
-def cointegration(y, x, period = 250):
-    adf = DickeyFuller()
-    if (period == 0):
-        period = len(y)
-
-    y, x = getvalues_by_period(y, x, period)
-    model = model_ols(y, x)
-    adf.check(model.resid)
-    return [adf.is_stationary, adf.p_value, adf.perc_stat, model.params[1], period]
 
 """
 Apply half-life
