@@ -147,6 +147,8 @@ def cointegration(y, x, period = 250):
             "p_value": adf.p_value,
             "perc_stat": adf.perc_stat,
             "beta": model.params[1],
+            "coefang": model.params[1],
+            "coeflinear": model.params[0],
             "period": period}
 
 """
@@ -272,7 +274,7 @@ def apply_corr(data, pairs, period=250):
         x = data[row['Independente']]
         y, x = getvalues_by_period(y, x, period)
             
-        corr = corr_pearson(y, x)
+        corr = corr_pearson(y, x, True)
         pairs['Corr'].iloc[i] = corr
 
 """
