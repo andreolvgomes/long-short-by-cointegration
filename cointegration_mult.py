@@ -250,7 +250,7 @@ def desvq(values):
     return np.power(values-values.mean(), 2).sum()
 
 #função EPADYX do excel
-def epadyx(y, x):
+def epadyx(y, x, period):
     res = residue(y, x, period)
     rdiff = ratio_diff(y, x, period)
     X = sm.add_constant(res)
@@ -264,7 +264,7 @@ def adf_ser(y, x, period):
     rdiff[0]=0
 
     inter_cof = intercept_coef(y, x, period)
-    return inter_cof/(epadyx(rdiff, res)/np.sqrt(desvq(res)))
+    return inter_cof/(epadyx(rdiff, res, period)/np.sqrt(desvq(res)))
 
 def rejeitado_h0(adf):
     if adf<=0:
