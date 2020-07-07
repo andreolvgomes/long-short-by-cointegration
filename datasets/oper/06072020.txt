@@ -1,0 +1,8 @@
+TAEE11	Long
+USIM5	Short
+--------------------------
+CSAN3	Short
+FLRY3	Long
+--------------------------
+ENGI11	Long
+VVAR3	Short
