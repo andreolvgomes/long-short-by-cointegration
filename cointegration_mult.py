@@ -154,39 +154,47 @@ def statisticspair(y, x, desv_input, period):
         "max": np.max(res)+2*std
     }
 
-def trade_stop(y, x, period):
-    res = residue(y, x, period)
+
+# acima do quadro "ESTATÍSTICAS"
+def desv_stop(y, x, period):
+    resid = residue(y, x, period)
+    std_down = resid.mean()-3.1*resid.std()
+    std_up = resid.mean()+3.1*resid.std()
+    return {
+        'up': std_up,
+        'down':std_down
+    }
+
+def ratio_trade_stop(y, x, period):
+    resid = residue(y, x, period)
     
     # acima do quadro "ESTATÍSTICAS"
-    std_down = res.mean()-3.1*res.std()
-    std_up = res.mean()+3.1*res.std()
+    std_down = resid.mean()-3.1*resid.std()
+    std_up = resid.mean()+3.1*resid.std()
     
-    est = coefficients(y, x, period)
-    l_res = res[0]
-    price = x[0]
+    coef = coefficients(y, x, period)
+    last_resid = resid[0]
+    last_price = x[0]
     
-    value1 = (price*est['angular']+est['intercept']+l_res+est['temp']*period+min(l_res-std_down,std_up-l_res)*sinal(l_res))/price
-    value2 = price/(price*est['angular']+est['intercept']+l_res+est['temp']*period+min(l_res-std_down,std_up-l_res)*sinal(l_res))
-    return max(value1, value2)
-
-def trade_output(y, x, period):
+    formula = (last_price*coef['angular']+coef['intercept']+last_resid+coef['temp']*period+min(last_resid-std_down,std_up-last_resid)*sinal(last_resid))
+    return max(formula/last_price, last_price/formula)
+    
+def ratio_trade_output(y, x, period):
     price = x[0]
-    est = coefficients(y, x, period)
-    value1 = (est['angular']*price+est['intercept']+est['temp']*period)/price
-    value2 = 1/((est['angular']*price+est['intercept']+est['temp']*period)/price)
-    return max(value1, value2)
+    coef = coefficients(y, x, period)
+    formula = (coef['angular']*price+coef['intercept']+coef['temp']*period)/price
+    return max(formula, 1/formula)
 
-def trade_input(y, x, period):
+def ratio_trade_input(y, x, period):
     price = x[0]
-    res = residue(y, x, period)
-    l_res = res[0]
-    est = coefficients(y, x, period)
-    std_up = 2*res.std()
-    std_down = -2*res.std()
-
-    value1 = (price*est['angular']+est['intercept']+l_res+est['temp']*period+min(l_res-std_down,std_up-l_res)*sinal(l_res))/price
-    value2 = price/(price*est['angular']+est['intercept']+l_res+est['temp']*period+min(l_res-std_down,std_up-l_res)*sinal(l_res))
-    return max(value1, value2)
+    resid = residue(y, x, period)
+    last_resid = resid[0]
+    coef = coefficients(y, x, period)
+    std_up = 2*resid.std()
+    std_down = -2*resid.std()
+    
+    formula = (price*coef['angular']+coef['intercept']+last_resid+coef['temp']*period+min(last_resid-std_down,std_up-last_resid)*sinal(last_resid))
+    return max(formula/price, price/formula)
 
 def ratio_current(y, x):
     ratio = y[0]/x[0]
@@ -196,14 +204,14 @@ def ratio_current(y, x):
     }
 
 def loss_percent(y, x, period):
-    return -abs(trade_stop(y, x, period)/trade_input(y, x, period)-1)
+    return -abs(ratio_trade_stop(y, x, period)/ratio_trade_input(y, x, period)-1)
 
 def current_percent(y, x, period):
     ratio = ratio_current(y, x)
-    return abs(trade_output(y, x, period)/max(ratio['ratio'], ratio['value'])-1)
+    return abs(ratio_trade_output(y, x, period)/max(ratio['ratio'], ratio['value'])-1)
 
 def return_percent(y, x, period):
-    return abs(trade_output(y, x, period)/trade_input(y, x, period)-1)
+    return abs(ratio_trade_output(y, x, period)/ratio_trade_input(y, x, period)-1)
 
 def loss(y, x, lot, period):
     return y[0]*lot*loss_percent(y, x, period)
@@ -436,3 +444,10 @@ def plot_residue(resid, desv_input=2, padronizar=True):
     plt.axhline(0, color='black',label='mean') # Add the mean of residual
     plt.axhline(desv_input*std, color='red', linestyle='--', linewidth=2)
     plt.axhline(-desv_input*std, color='green', linestyle='--', linewidth=2)
+    
+def predy(y, x, period):
+    last_price = x[0]
+    coef = coefficients(y, x, period)
+    last_resid = residue(y, x, period)[0]
+    pred = last_price*coef['angular']+coef['intercept']+last_resid+coef['temp']*period
+    return pred
