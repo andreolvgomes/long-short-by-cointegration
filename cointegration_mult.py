@@ -196,6 +196,16 @@ def ratio_trade_input(y, x, period):
     formula = (price*coef['angular']+coef['intercept']+last_resid+coef['temp']*period+min(last_resid-std_down,std_up-last_resid)*sinal(last_resid))
     return max(formula/price, price/formula)
 
+def ratio_trade(y, x, period):
+    ratio_input = ratio_trade_input(y, x, period)
+    ratio_stop = ratio_trade_stop(y, x, period)
+    ratio_output = ratio_trade_output(y, x, period)
+    return {
+        'input': ratio_input,
+        'stop': ratio_stop,
+        'output': ratio_output,
+    }
+    
 def ratio_current(y, x):
     ratio = y[0]/x[0]
     return {
@@ -292,6 +302,13 @@ def dickey_fuller_ger(y, x, period):
         "statistic": adf_statistic,
         "adf": rej
     }
+
+def predy(y, x, period):
+    last_price = x[0]
+    coef = coefficients(y, x, period)
+    last_resid = residue(y, x, period)[0]
+    pred = last_price*coef['angular']+coef['intercept']+last_resid+coef['temp']*period
+    return pred
 
 def signal(y, x, desv_input, period):
     y, x, get_values(y, x, period)
@@ -437,17 +454,10 @@ def plot_residue(resid, desv_input=2, padronizar=True):
     if (padronizar):
         resid = zscore(resid)
     std = resid.std()
-    resid.plot(figsize=(15, 6), linewidth=2)
+    resid.plot(figsize=(17, 6), linewidth=2)
 
     plt.xlabel('')
     plt.axhline(resid.mean())
     plt.axhline(0, color='black',label='mean') # Add the mean of residual
     plt.axhline(desv_input*std, color='red', linestyle='--', linewidth=2)
     plt.axhline(-desv_input*std, color='green', linestyle='--', linewidth=2)
-    
-def predy(y, x, period):
-    last_price = x[0]
-    coef = coefficients(y, x, period)
-    last_resid = residue(y, x, period)[0]
-    pred = last_price*coef['angular']+coef['intercept']+last_resid+coef['temp']*period
-    return pred
