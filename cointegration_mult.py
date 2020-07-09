@@ -329,13 +329,20 @@ def signal(y, x, desv_input, period):
         descr = 'Long/Short'
         zcurrent = zscore_down
     
+    oper_str = ''
+    if (resid_current >= zscore_up):
+        oper_str='Short'
+    if (resid_current <= zscore_down):
+        oper_str='Long'
+        
     percent = (abs(resid_current)/abs(zcurrent))
     #1-descr
     #2-resíduo atual
     #3-percent distância da linha 0, quanto maior, melhor
     return {
-        "descr": descr, 
-        "resid_current": resid_current, 
+        "descr": descr,
+        "signal": oper_str,
+        "resid_current": resid_current,
         "percent_dist_mean": percent}
 
 def list_periods():
@@ -466,8 +473,16 @@ def summary(data, y_symbol, x_symbol, period, y_volume=100, x_volume=0, display_
     resid = residue(y, x, period)
     coef = coefficients(y, x, period)
     volume = getvolume(coef, y_volume, x_volume)
+    sig = signal(y, x, 2, period)
     
-    print('Períodos: {}'.format(period))
+    oper = 'Não'
+    if (sig['signal']=='Short'):
+        oper = 'Venda: {} / Compra:{}'.format(y_symbol, x_symbol)
+    if (sig['signal']=='Long'):
+        oper = 'Compra: {} / Venda:{}'.format(y_symbol, x_symbol)
+    
+    print(line)
+    valuestr(['Períodos', str(period)], ['Entrada', oper])
     print(line)
     valuestr(['Independente', y_symbol], ['Dependente', x_symbol])
     valuestr(['R$', str(y[0])], ['R$', str(x[0])])
@@ -477,14 +492,14 @@ def summary(data, y_symbol, x_symbol, period, y_volume=100, x_volume=0, display_
     x_finan = -x[0]*volume[1]
     print(line)
     valuestr(['Finan({}) R$'.format(y_symbol), str(y_finan)], ['Ratio', str(y[0]/x[0])])
-    valuestr(['Finan({}) R$'.format(x_symbol), str(x_finan)], ['xxx', 'xxxx'])
-    valuestr(['Margem  R$', str(y_finan+x_finan)], ['xxx', 'xxxx'])
+    valuestr(['Finan({}) R$'.format(x_symbol), str(x_finan)], ['', ''])
+    valuestr(['Margem  R$', str(y_finan+x_finan)], ['', ''])
     
     dickey = dickey_fuller(residue(y, x, period))
     print(line)
     valuestr(['p-value', str(dickey['p-value'])], ['Meia Vida', str(halflile(resid))])
-    valuestr(['ADF', str(dickey['adf'])], ['Correlação', str(correlation(y, x, period))])
-    valuestr(['', ''], ['Inverter', str(invert(y, x, period))])
+    valuestr(['ADF', str(dickey['adf'])], ['Correlação  (%)', str(correlation(y, x, period))])
+    valuestr(['Beta', str(coef['angular'])], ['Inverter', str(invert(y, x, period))])
     
     print(line)
     valuestr(['Retorno  (%)', str(return_percent(y, x, period))], ['Gain', str(gain(y, x, 100, period))])
