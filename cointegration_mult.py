@@ -483,7 +483,7 @@ def summary(data, y_symbol, x_symbol, period, y_volume=100, x_volume=0, display_
         oper = 'Compra: {} / Venda:{}'.format(y_symbol, x_symbol)
     
     print(line)
-    valuestr(['Períodos', str(period)], ['Entrada', oper])
+    valuestr(['Período de Análise', str(period)], ['Entrada', oper])
     print(line)
     valuestr(['Independente', y_symbol], ['Dependente', x_symbol])
     valuestr(['R$', str(y[0])], ['R$', str(x[0])])
@@ -512,7 +512,11 @@ def summary(data, y_symbol, x_symbol, period, y_volume=100, x_volume=0, display_
     valuestr(['Ratio Entrada', str(ratio_trade_input(y, x, period))])
     valuestr(['Ratio Saída', str(ratio_trade_output(y, x, period))])
     valuestr(['Ratio Stop', str(ratio_trade_stop(y, x, period))])
-        
+    
+    print(line)
+    listperiods = check_periods(data[y_symbol], data[x_symbol])
+    print('Cointegrado em ({}): {}'.format(len(listperiods), listperiods))
+    
     if (display_statistic):
         print(line)
         valuestr(['Coef.Temp', str(coef['temp'])], ['Coef', str(intercept_coef(y, x, period))])
