@@ -460,7 +460,7 @@ def valuestr(message1=[], message2=[]):
     
     print(right.ljust(n, ' ') + '   ' + lefht)
     
-def summary(data, y_symbol, x_symbol, period, y_volume=100, x_volume=0):
+def summary(data, y_symbol, x_symbol, period, y_volume=100, x_volume=0, display_statistic=False):
     line = '===================================================================================='
     y, x = get_values(data[y_symbol], data[x_symbol], period)
     resid = residue(y, x, period)
@@ -496,10 +496,11 @@ def summary(data, y_symbol, x_symbol, period, y_volume=100, x_volume=0):
     valuestr(['Ratio Saída', str(ratio_trade_output(y, x, period))])
     valuestr(['Ratio Stop', str(ratio_trade_output(y, x, period))])
         
-    print(line)
-    valuestr(['Coef.Temp', str(coef['temp'])], ['Coef', str(intercept_coef(y, x, period))])
-    valuestr(['Coef.Ang', str(coef['angular'])], ['Intercept', str(intercept_inter(y, x, period))])
-    valuestr(['Coef.Lin', str(coef['intercept'])], ['', ''])
+    if (display_statistic):
+        print(line)
+        valuestr(['Coef.Temp', str(coef['temp'])], ['Coef', str(intercept_coef(y, x, period))])
+        valuestr(['Coef.Ang', str(coef['angular'])], ['Intercept', str(intercept_inter(y, x, period))])
+        valuestr(['Coef.Lin', str(coef['intercept'])], ['', ''])
     
     print(line)
 
