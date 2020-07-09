@@ -445,7 +445,32 @@ def apply_periods(data, pairs):
 
         pairs['PeriodQt'].iloc[i] = len(periods_ok)
         pairs['PeriodStr'].iloc[i] = descr
-        
+
+def summary(data, y_symbol, x_symbol, period):
+    line = '===================================================================================='
+
+    print('Perídos: {}'.format(period))
+    print(line)
+    value(['Independente', y_symbol], ['Dependente', y_symbol])
+    value(['R$', '25,00'], ['R$', '54,00'])
+    print(line)
+    value(['p-value', '-4,4485'], ['Meia Vida', '75'])
+    value(['ADF', '99,00%'], ['Correlação', '75%'])
+    value(['Aceita t0', '0,00%'], ['Inverter', 'Sim'])
+    print(line)
+    value(['Retorno', '7,64%'], ['Gain', '177,35898'])
+    value(['Atual', '2,41%'], ['Loss', '08,81'])
+    value(['Loss', '-4,20%'], ['', ''])
+    print(line)
+    value(['Ratio Entrada', '3,0170'])
+    value(['Ratio Saída', '3,0170'])
+    value(['Ratio Saída', '3,0170'])
+    print(line)
+    value(['Coef.Temp', '0,0775'], ['Coef', '0,0775'])
+    value(['Coef.Ang', '0,0775'], ['Intercept', '0,0775'])
+    value(['Coef.Lin', '0,0775'], ['', ''])
+    print(line)
+
 def plot_residue2(y, x, period, desv_input=2, padronizar=True):
     plot_residue(residue(y, x, period), desv_input=desv_input, padronizar=padronizar)
     
