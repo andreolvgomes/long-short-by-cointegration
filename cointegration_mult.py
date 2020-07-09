@@ -342,6 +342,7 @@ def signal(y, x, desv_input, period):
     return {
         "descr": descr,
         "signal": oper_str,
+        "is_signal": oper_str!='',
         "resid_current": resid_current,
         "percent_dist_mean": percent}
 
@@ -468,7 +469,7 @@ def valuestr(message1=[], message2=[]):
     print(right.ljust(n, ' ') + '   ' + lefht)
     
 def summary(data, y_symbol, x_symbol, period, y_volume=100, x_volume=0, display_statistic=False):
-    line = '===================================================================================='
+    line = '==================================================================================='
     y, x = get_values(data[y_symbol], data[x_symbol], period)
     resid = residue(y, x, period)
     coef = coefficients(y, x, period)
@@ -517,7 +518,7 @@ def summary(data, y_symbol, x_symbol, period, y_volume=100, x_volume=0, display_
         valuestr(['Coef.Temp', str(coef['temp'])], ['Coef', str(intercept_coef(y, x, period))])
         valuestr(['Coef.Ang', str(coef['angular'])], ['Intercept', str(intercept_inter(y, x, period))])
         valuestr(['Coef.Lin', str(coef['intercept'])], ['', ''])
-    
+        
     print(line)
 
 def plot_residue2(y, x, period, desv_input=2, padronizar=True):
