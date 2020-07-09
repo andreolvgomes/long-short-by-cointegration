@@ -46,8 +46,8 @@ def timeline(period):
     temp = period - numbers + 1
     return temp
 
-def lot(y_lot, coef):
-    return [y_lot, int(y_lot*coef['angular'])]
+def getvolume(coef, y_volume, x_volume=0):
+    return [y_volume, int(-y_volume*coef['angular'])]
 
 def returns(y, x, period):
     y, x = get_values(y, x, period)
@@ -258,7 +258,7 @@ def dickey_fuller(series):
         
     return {
         "is_stationary": is_stationary,
-        "p_value": p_value,
+        "p-value": p_value,
         "adf": perc_stat,
         "statistic": statistic
     }
@@ -359,7 +359,7 @@ def analysis_by_periods(y, x):
         half = halflile(resid)
         corr = correlation(y_values, x_values, period)
         
-        rows.append([period, check['is_stationary'], check['p_value'], check['adf'], check['coef.ang'], half, corr])
+        rows.append([period, check['is_stationary'], check['p-value'], check['adf'], check['coef.ang'], half, corr])
         
     analysis = pd.DataFrame(rows, columns=['Period', 'Stationary', 'Dickey-Fuller', 'ADF', 'Beta', 'HalfLife', 'Corr'])
     return analysis
@@ -373,7 +373,7 @@ def check_cointegration(y, x, period):
     
     return {"period": period,
             "is_stationary": dickey['is_stationary'],
-            "p_value": dickey['p_value'],
+            "p-value": dickey['p-value'],
             "adf": dickey['adf'],
             "coef.temp": coeff['temp'],
             "coef.ang": coeff['angular'],
@@ -394,7 +394,7 @@ def find(data):
                 check = check_cointegration(data[y_symbol], data[x_symbol], period)
                 # find only an is stationary, then break looping
                 if (check['is_stationary']):
-                    rows.append([period, y_symbol, x_symbol, check['p_value'], check['adf'], check['coef.ang']])
+                    rows.append([period, y_symbol, x_symbol, check['p-value'], check['adf'], check['coef.ang']])
                     break
     return rows
 
@@ -446,29 +446,61 @@ def apply_periods(data, pairs):
         pairs['PeriodQt'].iloc[i] = len(periods_ok)
         pairs['PeriodStr'].iloc[i] = descr
 
-def summary(data, y_symbol, x_symbol, period):
+def valuestr(message1=[], message2=[]):
+    space = 40
+    right = ''
+    if (len(message1)>0):
+        n = space-len(message1[1])
+        right =  message1[0].ljust(n, ' ') + message1[1]
+    
+    lefht = ''
+    if(len(message2) > 0):
+        n = space-len(message2[1])
+        lefht =  message2[0].ljust(n, ' ') + message2[1]
+    
+    print(right.ljust(n, ' ') + '   ' + lefht)
+    
+def summary(data, y_symbol, x_symbol, period, y_volume=100, x_volume=0):
     line = '===================================================================================='
-
-    print('Perídos: {}'.format(period))
+    y, x = get_values(data[y_symbol], data[x_symbol], period)
+    resid = residue(y, x, period)
+    coef = coefficients(y, x, period)
+    volume = getvolume(coef, y_volume, x_volume)
+    
+    print('Períodos: {}'.format(period))
     print(line)
-    value(['Independente', y_symbol], ['Dependente', y_symbol])
-    value(['R$', '25,00'], ['R$', '54,00'])
+    valuestr(['Independente', y_symbol], ['Dependente', x_symbol])
+    valuestr(['R$', str(y[0])], ['R$', str(x[0])])
+    valuestr(['Volume', str(volume[0])], ['Volume', str(volume[1])])
+    
+    y_finan = -y[0]*volume[0]
+    x_finan = -x[0]*volume[1]
     print(line)
-    value(['p-value', '-4,4485'], ['Meia Vida', '75'])
-    value(['ADF', '99,00%'], ['Correlação', '75%'])
-    value(['Aceita t0', '0,00%'], ['Inverter', 'Sim'])
+    valuestr(['Finan({}) R$'.format(y_symbol), str(y_finan)], ['Ratio', str(y[0]/x[0])])
+    valuestr(['Finan({}) R$'.format(x_symbol), str(x_finan)], ['xxx', 'xxxx'])
+    valuestr(['Margem  R$', str(y_finan+x_finan)], ['xxx', 'xxxx'])
+    
+    dickey = dickey_fuller(residue(y, x, period))
     print(line)
-    value(['Retorno', '7,64%'], ['Gain', '177,35898'])
-    value(['Atual', '2,41%'], ['Loss', '08,81'])
-    value(['Loss', '-4,20%'], ['', ''])
+    valuestr(['p-value', str(dickey['p-value'])], ['Meia Vida', str(halflile(resid))])
+    valuestr(['ADF', str(dickey['adf'])], ['Correlação', str(correlation(y, x, period))])
+    valuestr(['', ''], ['Inverter', str(invert(y, x, period))])
+    
     print(line)
-    value(['Ratio Entrada', '3,0170'])
-    value(['Ratio Saída', '3,0170'])
-    value(['Ratio Saída', '3,0170'])
+    valuestr(['Retorno  (%)', str(return_percent(y, x, period))], ['Gain', str(gain(y, x, 100, period))])
+    valuestr(['Atual    (%)', str(current_percent(y, x, period))], ['Loss', str(loss(y, x, 100, period))])
+    valuestr(['Loss     (%)', str(loss_percent(y, x, period))], ['', ''])
+    
     print(line)
-    value(['Coef.Temp', '0,0775'], ['Coef', '0,0775'])
-    value(['Coef.Ang', '0,0775'], ['Intercept', '0,0775'])
-    value(['Coef.Lin', '0,0775'], ['', ''])
+    valuestr(['Ratio Entrada', str(ratio_trade_input(y, x, period))])
+    valuestr(['Ratio Saída', str(ratio_trade_output(y, x, period))])
+    valuestr(['Ratio Stop', str(ratio_trade_output(y, x, period))])
+        
+    print(line)
+    valuestr(['Coef.Temp', str(coef['temp'])], ['Coef', str(intercept_coef(y, x, period))])
+    valuestr(['Coef.Ang', str(coef['angular'])], ['Intercept', str(intercept_inter(y, x, period))])
+    valuestr(['Coef.Lin', str(coef['intercept'])], ['', ''])
+    
     print(line)
 
 def plot_residue2(y, x, period, desv_input=2, padronizar=True):
