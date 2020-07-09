@@ -4,3 +4,4 @@ historic-alpha-vantage/
 datasets-b3/
 datasets-b3-2019/
 __pycache__/
+.ipynb_checkpoints/
