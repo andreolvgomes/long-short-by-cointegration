@@ -494,7 +494,7 @@ def summary(data, y_symbol, x_symbol, period, y_volume=100, x_volume=0, display_
     print(line)
     valuestr(['Finan({}) R$'.format(y_symbol), str(y_finan)], ['Ratio', str(y[0]/x[0])])
     valuestr(['Finan({}) R$'.format(x_symbol), str(x_finan)], ['', ''])
-    valuestr(['Margem  R$', str(abs(y_finan+x_finan))], ['', ''])
+    valuestr(['=  R$', str(y_finan+x_finan)], ['', ''])
     
     print(line)
     valuestr(['Retorno  (%)', str(return_percent(y, x, period)*100)], ['Gain', str(gain(y, x, volume[0], period))])
