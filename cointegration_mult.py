@@ -223,11 +223,11 @@ def current_percent(y, x, period):
 def return_percent(y, x, period):
     return abs(ratio_trade_output(y, x, period)/ratio_trade_input(y, x, period)-1)
 
-def loss(y, x, lot, period):
-    return y[0]*lot*loss_percent(y, x, period)
+def loss(y, x, volume, period):
+    return y[0]*abs(volume)*loss_percent(y, x, period)
 
-def gain(y, x, lot, period):
-    return current_percent(y, x, period)*lot*y[0]
+def gain(y, x, volume, period):
+    return current_percent(y, x, period)*abs(volume)*y[0]
 
 def zscore(series):
     return (series - series.mean()) / np.std(series)
@@ -493,23 +493,24 @@ def summary(data, y_symbol, x_symbol, period, y_volume=100, x_volume=0, display_
     print(line)
     valuestr(['Finan({}) R$'.format(y_symbol), str(y_finan)], ['Ratio', str(y[0]/x[0])])
     valuestr(['Finan({}) R$'.format(x_symbol), str(x_finan)], ['', ''])
-    valuestr(['Margem  R$', str(y_finan+x_finan)], ['', ''])
+    valuestr(['Margem  R$', str(abs(y_finan+x_finan))], ['', ''])
+    
+    print(line)
+    valuestr(['Retorno  (%)', str(return_percent(y, x, period)*100)], ['Gain', str(gain(y, x, volume[0], period))])
+    valuestr(['Atual    (%)', str(current_percent(y, x, period)*100)], ['Loss', str(loss(y, x, volume[0], period))])
+    valuestr(['Loss     (%)', str(loss_percent(y, x, period)*100)], ['', ''])
     
     dickey = dickey_fuller(residue(y, x, period))
     print(line)
-    valuestr(['p-value', str(dickey['p-value'])], ['Meia Vida', str(halflile(resid))])
-    valuestr(['ADF', str(dickey['adf'])], ['Correlação  (%)', str(correlation(y, x, period))])
-    valuestr(['Beta', str(coef['angular'])], ['Inverter', str(invert(y, x, period))])
-    
-    print(line)
-    valuestr(['Retorno  (%)', str(return_percent(y, x, period))], ['Gain', str(gain(y, x, 100, period))])
-    valuestr(['Atual    (%)', str(current_percent(y, x, period))], ['Loss', str(loss(y, x, 100, period))])
-    valuestr(['Loss     (%)', str(loss_percent(y, x, period))], ['', ''])
+    valuestr(['Dickey Fuller', str(dickey['statistic'])], ['Meia Vida', str(halflile(resid))])    
+    valuestr(['ADF', str(dickey['adf'])], ['Correlação  (%)', str(correlation(y, x, period)*100)])
+    valuestr(['p-value', str(dickey['p-value'])], ['Inverter', str(invert(y, x, period))])
+    valuestr(['', ''], ['Beta', str(coef['angular'])])
     
     print(line)
     valuestr(['Ratio Entrada', str(ratio_trade_input(y, x, period))])
     valuestr(['Ratio Saída', str(ratio_trade_output(y, x, period))])
-    valuestr(['Ratio Stop', str(ratio_trade_output(y, x, period))])
+    valuestr(['Ratio Stop', str(ratio_trade_stop(y, x, period))])
         
     if (display_statistic):
         print(line)
