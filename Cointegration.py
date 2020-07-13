@@ -395,7 +395,7 @@ def show(data, y_symbol, x_symbol, period=250, padronizar=True, savefig=''):
     std = statistics.stdev(result)
     entry_threshold = 2 # entrada em 2 desvio padrão
     
-    result.plot(figsize=(15,6))
+    result.plot(figsize=(17,6), linewidth=2)
     plt.ylabel('Residual')
     if(y_symbol != '' and x_symbol != ''):
         plt.title('{} / {}'.format(y_symbol, x_symbol))

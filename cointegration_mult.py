@@ -46,8 +46,22 @@ def timeline(period):
     temp = period - numbers + 1
     return temp
 
-def getvolume(coef, y_volume, x_volume=0):
+def volume_beta_neutral(coef, y_volume):
     return [y_volume, int(-y_volume*coef['angular'])]
+
+def volume_cash_neutral(y, x, volume):
+    y_price = round(y[0], 2)
+    x_price = round(x[0], 2)
+    y_volume = round((volume * y_price), 4)
+    x_volume = round((volume * y_price)/x_price, 4)
+    if (volume < 0):
+        y_volume = 0-(round(abs(volume*x_price)/y_price, 4))
+        x_volume = abs(volume)
+    else:
+        y_volume = abs(volume)
+        x_volume = 0-(round(abs(volume*y_price)/x_price, 4))
+        
+    return [y_volume, x_volume]
 
 def returns(y, x, period):
     y, x = get_values(y, x, period)
@@ -367,7 +381,7 @@ def analysis_by_periods(y, x):
         half = halflile(resid)
         corr = correlation(y_values, x_values, period)
         
-        rows.append([period, check['is_stationary'], check['p-value'], check['adf'], check['coef.ang'], half, corr])
+        rows.append([period, check['is_stationary'], check['statistic'], check['adf'], check['coef.ang'], half, corr])
         
     analysis = pd.DataFrame(rows, columns=['Period', 'Stationary', 'Dickey-Fuller', 'ADF', 'Beta', 'HalfLife', 'Corr'])
     return analysis
@@ -382,6 +396,7 @@ def check_cointegration(y, x, period):
     return {"period": period,
             "is_stationary": dickey['is_stationary'],
             "p-value": dickey['p-value'],
+            'statistic': dickey['statistic'],
             "adf": dickey['adf'],
             "coef.temp": coeff['temp'],
             "coef.ang": coeff['angular'],
@@ -402,7 +417,7 @@ def find(data):
                 check = check_cointegration(data[y_symbol], data[x_symbol], period)
                 # find only an is stationary, then break looping
                 if (check['is_stationary']):
-                    rows.append([period, y_symbol, x_symbol, check['p-value'], check['adf'], check['coef.ang']])
+                    rows.append([period, y_symbol, x_symbol, check['statistic'], check['adf'], check['coef.ang']])
                     break
     return rows
 
@@ -468,42 +483,66 @@ def valuestr(message1=[], message2=[]):
     
     print(right.ljust(n, ' ') + '   ' + lefht)
     
-def summary(data, y_symbol, x_symbol, period, y_volume=100, x_volume=0, display_statistic=False):
+def summary(data, y_symbol, x_symbol, period, y_volume=100, display_statistic=False):
     line = '==================================================================================='
     y, x = get_values(data[y_symbol], data[x_symbol], period)
     resid = residue(y, x, period)
     coef = coefficients(y, x, period)
-    volume = getvolume(coef, y_volume, x_volume)
-    sig = signal(y, x, 2, period)
+    sig = signal(y, x, 2, period)    
     
     oper = 'Não'
     if (sig['signal']=='Short'):
-        oper = 'Venda: {} / Compra:{}'.format(y_symbol, x_symbol)
+        oper = 'Venda:{} / Compra:{}'.format(y_symbol, x_symbol)
     if (sig['signal']=='Long'):
-        oper = 'Compra: {} / Venda:{}'.format(y_symbol, x_symbol)
+        oper = 'Compra:{} / Venda:{}'.format(y_symbol, x_symbol)
+
+    if (sig['signal']=='Short'):
+        y_volume = -abs(y_volume)
+    
+    volume = volume_beta_neutral(coef, y_volume)
+    y_price = round(y[0], 2)
+    x_price = round(x[0], 2)
     
     print(line)
     valuestr(['Período de Análise', str(period)], ['Entrada', oper])
     print(line)
     valuestr(['Independente', y_symbol], ['Dependente', x_symbol])
-    valuestr(['R$', str(y[0])], ['R$', str(x[0])])
-    valuestr(['Volume', str(volume[0])], ['Volume', str(volume[1])])
+    valuestr(['R$', str(y_price)], ['R$', str(x_price)])
+    valuestr(['Ratio', str(y[0]/x[0])])
+    #valuestr(['Volume', str(volume[0])], ['Volume', str(volume[1])])
+    y_finan = round(y[0]*volume[0], 2)
+    x_finan = round(x[0]*volume[1], 2)
     
-    y_finan = -y[0]*volume[0]
-    x_finan = -x[0]*volume[1]
+    if (sig['is_signal']):
+        print(line)
+        
+        print('→ CASH NEUTRAL ←')
+        if (sig['signal']=='Short'):
+            volume_y, volume_x = volume_cash_neutral(data[y_symbol], data[x_symbol], y_volume)
+            valuestr([y_symbol, str(volume_y)], ['Financeiro R$', str(round(volume_y*y_price, 4))])
+            valuestr([x_symbol, str(volume_x)], ['Financeiro R$', str(round(volume_x*x_price, 4))])
+            valuestr(['', ''], ['', str(round(round(volume_y*y_price, 4)+round(volume_x*x_price, 4), 4))])
+        
+        if (sig['signal']=='Long'):
+            volume_y, volume_x = volume_cash_neutral(data[y_symbol], data[x_symbol], y_volume)
+            valuestr([y_symbol, str(volume_y)], ['Financeiro', str(round(volume_y*y_price, 4))])
+            valuestr([x_symbol, str(volume_x)], ['Financeiro', str(round(volume_x*x_price, 4))])            
+            valuestr(['', ''], ['', str(round(round(volume_y*y_price, 4)+round(volume_x*x_price, 4), 2))])
+                
+        print('→ BETA NEUTRAL ←')
+        valuestr([x_symbol, str(volume[1])], ['Financeiro R$', str(x_finan)])
+        valuestr([y_symbol, str(volume[0])], ['Financeiro R$', str(y_finan)])
+        valuestr(['', ''], ['', str(round(y_finan+x_finan, 2))])
+            
     print(line)
-    valuestr(['Finan({}) R$'.format(y_symbol), str(y_finan)], ['Ratio', str(y[0]/x[0])])
-    valuestr(['Finan({}) R$'.format(x_symbol), str(x_finan)], ['', ''])
-    valuestr(['=  R$', str(y_finan+x_finan)], ['', ''])
-    
-    print(line)
+    print('Somente para operação Beta Neutral:')    
     valuestr(['Retorno  (%)', str(return_percent(y, x, period)*100)], ['Gain', str(gain(y, x, volume[0], period))])
     valuestr(['Atual    (%)', str(current_percent(y, x, period)*100)], ['Loss', str(loss(y, x, volume[0], period))])
     valuestr(['Loss     (%)', str(loss_percent(y, x, period)*100)], ['', ''])
     
     dickey = dickey_fuller(residue(y, x, period))
     print(line)
-    valuestr(['Dickey Fuller', str(dickey['statistic'])], ['Meia Vida', str(halflile(resid))])    
+    valuestr(['Dickey Fuller', str(dickey['statistic'])], ['Meia Vida', str(halflile(resid))])
     valuestr(['ADF', str(dickey['adf'])], ['Correlação  (%)', str(correlation(y, x, period)*100)])
     valuestr(['p-value', str(dickey['p-value'])], ['Inverter', str(invert(y, x, period))])
     valuestr(['', ''], ['Beta', str(coef['angular'])])
@@ -527,16 +566,22 @@ def summary(data, y_symbol, x_symbol, period, y_volume=100, x_volume=0, display_
 
 def plot_residue2(y, x, period, desv_input=2, padronizar=True):
     plot_residue(residue(y, x, period), desv_input=desv_input, padronizar=padronizar)
+
+def plot_residue3(data, y_symbol, x_symbol, period, desv_input=2, padronizar=True):
+    plot_residue(residue(data[y_symbol], data[x_symbol], period), desv_input=desv_input, padronizar=padronizar, y_symbol=y_symbol, x_symbol=x_symbol)
     
-def plot_residue(resid, desv_input=2, padronizar=True):
+def plot_residue(resid, desv_input=2, padronizar=True, y_symbol='', x_symbol=''):
     resid = resid[::-1]
     if (padronizar):
         resid = zscore(resid)
     std = resid.std()
     resid.plot(figsize=(17, 6), linewidth=2)
 
+    if (y_symbol != '' and x_symbol != ''):
+        plt.title('{} / {}'.format(y_symbol, x_symbol))
     plt.xlabel('')
     plt.axhline(resid.mean())
     plt.axhline(0, color='black',label='mean') # Add the mean of residual
     plt.axhline(desv_input*std, color='red', linestyle='--', linewidth=2)
     plt.axhline(-desv_input*std, color='green', linestyle='--', linewidth=2)
+    plt.show()
