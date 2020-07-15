@@ -26,7 +26,6 @@ def regression(y, x, period):
     model = sm.OLS(pairs['y'], X).fit()
     return model
 
-
 #https://support.minitab.com/pt-br/minitab/18/help-and-how-to/modeling-statistics/regression/how-to/
 #   fit-regression-model/interpret-the-results/all-statistics-and-graphs/coefficients-table/#t-value
 #https://pt.slideshare.net/klevertonsaath/testes-de-especificao-diagnstico-e-interpretao-de-modelo-ols-ordinary-least-squares
@@ -253,7 +252,7 @@ def return_percent(y, x, period):
     return abs(ratio_trade_output(y, x, period)/ratio_trade_input(y, x, period)-1)
 
 def loss(y, x, volume, period):
-    return y[0]*abs(volume)*loss_percent(y, x, period)
+    return loss_percent(y, x, period)*abs(volume)*y[0]
 
 def gain(y, x, volume, period):
     return current_percent(y, x, period)*abs(volume)*y[0]
@@ -261,6 +260,7 @@ def gain(y, x, volume, period):
 def zscore(series):
     return (series - series.mean()) / np.std(series)
 
+# excel
 def sinal(value):
     if(value < 0):
         return -1
@@ -457,7 +457,7 @@ def apply_corr(data, pairs):
 
         corr = correlation(y, x, period)
         pairs['Corr'].iloc[i] = corr
-        
+
 def apply_signal(data, pairs, desv_input):
     pairs['Signal'] = 0
     pairs['SignalStr'] = ''
