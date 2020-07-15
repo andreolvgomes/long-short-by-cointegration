@@ -26,6 +26,21 @@ def regression(y, x, period):
     model = sm.OLS(pairs['y'], X).fit()
     return model
 
+
+#https://support.minitab.com/pt-br/minitab/18/help-and-how-to/modeling-statistics/regression/how-to/
+#   fit-regression-model/interpret-the-results/all-statistics-and-graphs/coefficients-table/#t-value
+#https://pt.slideshare.net/klevertonsaath/testes-de-especificao-diagnstico-e-interpretao-de-modelo-ols-ordinary-least-squares
+#verificar se o tempo tem relevância
+def accept_temp(y, x, period):
+    y, x = get_values(y, x, period)
+    reg = regression(y, x, period)
+    p_values  = reg.summary2().tables[1]['P>|t|']
+    
+    # quanto menor q 0.05 melhor
+    if(p_values['temp'] < 0.05):
+        return True
+    return False
+
 #O desvio padrão de uma estimativa é chamado de erro padrão
 def stderr(y, x, period):
     model = regression(y, x, period)
