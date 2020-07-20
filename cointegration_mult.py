@@ -184,21 +184,21 @@ def statisticspair(y, x, desv_input, period):
 
 
 # acima do quadro "ESTATÍSTICAS"
-def desv_stop(y, x, period):
+def desv_stop(y, x, period, desv_stop=3.1):
     resid = residue(y, x, period)
-    std_down = resid.mean()-3.1*resid.std()
-    std_up = resid.mean()+3.1*resid.std()
+    std_down = resid.mean()-desv_stop*resid.std()
+    std_up = resid.mean()+desv_stop*resid.std()
     return {
         'up': std_up,
         'down':std_down
     }
 
-def ratio_trade_stop(y, x, period):
+def ratio_trade_stop(y, x, period, desv_stop=3.1):
     resid = residue(y, x, period)
     
     # acima do quadro "ESTATÍSTICAS"
-    std_down = resid.mean()-3.1*resid.std()
-    std_up = resid.mean()+3.1*resid.std()
+    std_down = resid.mean()-desv_stop*resid.std()
+    std_up = resid.mean()+desv_stop*resid.std()
     
     coef = coefficients(y, x, period)
     last_resid = resid[0]
@@ -208,9 +208,9 @@ def ratio_trade_stop(y, x, period):
     return max(formula/last_price, last_price/formula)
     
 def ratio_trade_output(y, x, period):
-    price = x[0]
+    last_price = x[0]
     coef = coefficients(y, x, period)
-    formula = (coef['angular']*price+coef['intercept']+coef['temp']*period)/price
+    formula = (coef['angular']*last_price+coef['intercept']+coef['temp']*period)/last_price
     return max(formula, 1/formula)
 
 def ratio_trade_input(y, x, period):
@@ -224,9 +224,9 @@ def ratio_trade_input(y, x, period):
     formula = (price*coef['angular']+coef['intercept']+last_resid+coef['temp']*period+min(last_resid-std_down,std_up-last_resid)*sinal(last_resid))
     return max(formula/price, price/formula)
 
-def ratio_trade(y, x, period):
+def ratio_trade(y, x, period, desv_stop=3.1):
     ratio_input = ratio_trade_input(y, x, period)
-    ratio_stop = ratio_trade_stop(y, x, period)
+    ratio_stop = ratio_trade_stop(y, x, period, desv_stop=desv_stop)
     ratio_output = ratio_trade_output(y, x, period)
     return {
         'input': ratio_input,
@@ -241,8 +241,8 @@ def ratio_current(y, x):
         "value": 1/ratio
     }
 
-def loss_percent(y, x, period):
-    return -abs(ratio_trade_stop(y, x, period)/ratio_trade_input(y, x, period)-1)
+def loss_percent(y, x, period, desv_stop=3.1):
+    return -abs(ratio_trade_stop(y, x, period, desv_stop=desv_stop)/ratio_trade_input(y, x, period)-1)
 
 def current_percent(y, x, period):
     ratio = ratio_current(y, x)
@@ -251,8 +251,8 @@ def current_percent(y, x, period):
 def return_percent(y, x, period):
     return abs(ratio_trade_output(y, x, period)/ratio_trade_input(y, x, period)-1)
 
-def loss(y, x, volume, period):
-    return loss_percent(y, x, period)*abs(volume)*y[0]
+def loss(y, x, volume, period, desv_stop=3.1):
+    return loss_percent(y, x, period, desv_stop=desv_stop)*abs(volume)*y[0]
 
 def gain(y, x, volume, period):
     return current_percent(y, x, period)*abs(volume)*y[0]
@@ -260,7 +260,7 @@ def gain(y, x, volume, period):
 def zscore(series):
     return (series - series.mean()) / np.std(series)
 
-# excel
+#função SINAL do excel
 def sinal(value):
     if(value < 0):
         return -1
