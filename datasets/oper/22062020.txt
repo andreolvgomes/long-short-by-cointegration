@@ -1,8 +1,0 @@
-AZUL4	Long
-BBSE3	Short
-----------------------
-BBDC3	Long
-SANB11	Short
-----------------------
-ENGI11	Short
-MULT3	Long
