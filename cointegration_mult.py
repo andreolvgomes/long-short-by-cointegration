@@ -395,21 +395,28 @@ def analysis_by_periods(y, x):
         check = check_cointegration(y_values, x_values, period)
         half = halflile(resid)
         corr = correlation(y_values, x_values, period)
+        rows.append([period, check['is_stationary'], check['std'], check['statistic'], check['adf'], check['coef.ang'], half, corr, check['model']])
         
-        rows.append([period, check['is_stationary'], check['statistic'], check['adf'], check['coef.ang'], half, corr])
-        
-    analysis = pd.DataFrame(rows, columns=['Period', 'Stationary', 'Dickey-Fuller', 'ADF', 'Beta', 'HalfLife', 'Corr'])
+    analysis = pd.DataFrame(rows, columns=['Period', 'Stationary', 'Std', 'Dickey-Fuller', 'ADF', 'Beta', 'HalfLife', 'Corr', 'Model'])
     return analysis
 
 def check_cointegration(y, x, period):
     if (period == 0):
         period = len(y)
-        
-    dickey = dickey_fuller(residue(y, x, period))
+    
+    resid = residue(y, x, period)
+    dickey = dickey_fuller(resid)
     coeff = coefficients(y, x, period)
+    
+    # regressão simples ou múltipla?
+    type_mrl = 'MRLS'
+    if (accept_temp(y, x, period)):
+        type_mrl = 'MRLM'
     
     return {"period": period,
             "is_stationary": dickey['is_stationary'],
+            "std": zscore(resid)[0],
+            "model": type_mrl,
             "p-value": dickey['p-value'],
             'statistic': dickey['statistic'],
             "adf": dickey['adf'],
