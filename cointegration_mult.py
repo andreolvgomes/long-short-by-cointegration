@@ -415,7 +415,7 @@ def check_cointegration(y, x, period):
     
     return {"period": period,
             "is_stationary": dickey['is_stationary'],
-            "std": zscore(resid)[0],
+            "std": abs(zscore(resid)[0]),
             "model": type_mrl,
             "p-value": dickey['p-value'],
             'statistic': dickey['statistic'],
