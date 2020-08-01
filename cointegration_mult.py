@@ -47,9 +47,10 @@ def stderr(y, x, period):
             "angular":model.bse['x'],
             "intercept":model.bse['const']}
     
-def residue(y, x, period):
+def residue(y, x, period, coef=None):
     y, x = get_values(y, x, period)
-    coef = coefficients(y, x, period)
+    if (coef == None):
+        coef = coefficients(y, x, period)
     temp = timeline(period)
     res = y-coef['angular']*x-temp*coef['temp']-coef['intercept']
     #res[0]=0
