@@ -108,6 +108,7 @@
 [ ] Calcular R$ take profi
 [ ] Calular margem
 [ ] Calular R$ stop loss
+[ ] Intools Permutation
 -------------------------------------------------------------------
 TBC
 http://www.b3.com.br/pt_br/produtos-e-servicos/emprestimo-de-ativos/renda-variavel/s_empreg_ativos/
