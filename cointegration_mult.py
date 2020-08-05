@@ -376,8 +376,10 @@ def signal(y, x, desv_input, period):
         "resid_current": resid_current,
         "percent_dist_mean": percent}
 
-def list_periods():
-    return [100, 120, 140, 160, 180, 200, 220, 240, 250]
+def list_periods(sort_reverse=False):
+    list_per = [100, 120, 140, 160, 180, 200, 220, 240, 250]
+    list_per.sort(reverse=sort_reverse)
+    return list_per
 
 def check_periods(y, x):
     rows=[]
@@ -394,9 +396,8 @@ def analysis_by_periods(y, x):
         resid = residue(y_values, x_values, period)
         
         check = check_cointegration(y_values, x_values, period)
-        half = halflile(resid)
         corr = correlation(y_values, x_values, period)
-        rows.append([period, check['is_stationary'], check['std'], check['statistic'], check['adf'], check['coef.ang'], half, corr, check['model']])
+        rows.append([period, check['is_stationary'], check['std'], check['statistic'], check['adf'], check['coef.ang'], check['halflife'], corr, check['model']])
         
     analysis = pd.DataFrame(rows, columns=['Period', 'Stationary', 'Std', 'Dickey-Fuller', 'ADF', 'Beta', 'HalfLife', 'Corr', 'Model'])
     return analysis
@@ -408,6 +409,7 @@ def check_cointegration(y, x, period):
     resid = residue(y, x, period)
     dickey = dickey_fuller(resid)
     coeff = coefficients(y, x, period)
+    half = halflile(resid)
     
     # regressão simples ou múltipla?
     type_mrl = 'MRLS'
@@ -418,6 +420,7 @@ def check_cointegration(y, x, period):
             "is_stationary": dickey['is_stationary'],
             "std": abs(zscore(resid)[0]),
             "model": type_mrl,
+            "halflife": half,
             "p-value": dickey['p-value'],
             'statistic': dickey['statistic'],
             "adf": dickey['adf'],
@@ -426,7 +429,7 @@ def check_cointegration(y, x, period):
             "coef.linear": coeff['intercept']
            }
 
-def find(data):
+def find(data, per_sort_reverse=False):
     rows = []
     index=-1
     
@@ -435,17 +438,17 @@ def find(data):
         for x_symbol in data.columns[index+1:data.shape[1]]:#for x_symbol in data.columns:
             if (y_symbol == x_symbol):
                 continue
-                
-            for period in [250, 240, 220, 200, 180, 160, 140, 120, 100]:
+
+            for period in list_periods(sort_reverse=per_sort_reverse):
                 check = check_cointegration(data[y_symbol], data[x_symbol], period)
                 # find only an is stationary, then break looping
                 if (check['is_stationary']):
-                    rows.append([period, y_symbol, x_symbol, check['statistic'], check['adf'], check['coef.ang']])
+                    rows.append([period, y_symbol, x_symbol, check['statistic'], check['adf'], check['coef.ang'], check['std']])
                     break
     return rows
 
-def find_pairs(data):
-    df_pairs = pd.DataFrame(find(data), columns=['Period', 'Dependent', 'Independent', 'Dickey-Fuller', 'ADF', 'Beta'])
+def find_pairs(data, per_sort_reverse=False):
+    df_pairs = pd.DataFrame(find(data, per_sort_reverse=per_sort_reverse), columns=['Period', 'Dependent', 'Independent', 'Dickey-Fuller', 'ADF', 'Beta', 'Std'])
     return df_pairs
 
 def apply_halflife(data, pairs):
