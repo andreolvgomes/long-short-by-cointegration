@@ -147,14 +147,14 @@ def ornstein_uhlenbeck(y, x, period):
     
     half = 2/beta
     return {
-        "halffile": half,
+        "halflife": half,
         "beta": beta,
         "alpha": alpha,
         "sigma": sigma
     }
 
 def halflife_ser(y, x, period):
-    return ornstein_uhlenbeck(y, x, period)['halffile']
+    return ornstein_uhlenbeck(y, x, period)['halflife']
 
 def halflile(series):
     lag = np.roll(series, 1)
@@ -470,7 +470,7 @@ def apply_corr(data, pairs):
         pairs['Corr'].iloc[i] = corr
 
 def apply_signal(data, pairs, desv_input):
-    pairs['Signal'] = 0
+    #pairs['Signal'] = 0
     pairs['SignalStr'] = ''
     
     for i, row in pairs.iterrows():
@@ -478,7 +478,7 @@ def apply_signal(data, pairs, desv_input):
         y, x = get_values(data[row['Dependent']], data[row['Independent']], period)
         
         sig = signal(y, x, desv_input, period)
-        pairs['Signal'].iloc[i] = sig['percent_dist_mean']
+        #pairs['Signal'].iloc[i] = sig['percent_dist_mean']
         pairs['SignalStr'].iloc[i] = sig['descr']
         
 def apply_periods(data, pairs):
